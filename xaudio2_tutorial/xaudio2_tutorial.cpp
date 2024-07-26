@@ -73,7 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return false;
     }
 
-    /* Initialize XAudio to create an instance of the XAudio2 engine */
+    // Initialize XAudio to create an instance of the XAudio2 engine
     hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
 
     if (FAILED(hr)) {
