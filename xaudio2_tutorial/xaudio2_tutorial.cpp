@@ -22,9 +22,6 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 // Volume
 const float volume = 0.25;
 
-WAVEFORMATEXTENSIBLE wfx = { 0 };
-XAUDIO2_BUFFER buffer = { 0 };
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
