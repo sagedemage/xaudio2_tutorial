@@ -9,53 +9,7 @@
 #include "xaudio_driver.h"
 #include "hresult_debugger.h"
 
-bool XAudioDriver::InitializeXaudio(float volume) {
-	/* Initialize COM Library */
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CoInitializeEx in InitializeXaudio", 0, 0);
-
-		verbose_debug_hresult(hr, "CoInitializeEx Error in InitializeXaudio");
-
-		return false;
-	}
-
-	/* Initialize XAudio to create an instance of the XAudio2 engine */
-	hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed XAudio2Create", 0, 0);
-
-		verbose_debug_hresult(hr, "XAudio2Create Error in InitializeXaudio");
-
-		return false;
-	}
-
-	/* Create a mastering voice */
-	hr = pXAudio2->CreateMasteringVoice(
-		&pMasterVoice,
-		2,
-		XAUDIO2_DEFAULT_SAMPLERATE,
-		0,
-		NULL,
-		NULL
-	);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
-
-		verbose_debug_hresult(hr, "Failed CreateMasteringVoice in CreateMasteringVoice");
-
-		return false;
-	}
-
-	pMasterVoice->SetVolume(volume);
-
-	return true;
-}
-
-HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition) {
+HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition) {
 	HRESULT hr = S_OK;
 
 	DWORD fileP = SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
@@ -118,7 +72,7 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 	return S_OK;
 }
 
-HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD bufferoffset) {
+HRESULT ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD bufferoffset) {
 	HRESULT hr = S_OK;
 
 	DWORD fileP = SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN);
@@ -138,7 +92,7 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersiz
 	return hr;
 }
 
-bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
+bool LoadWaveAudioFile(LPCSTR audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer) {
 	HRESULT hr;
 	HANDLE hFile = CreateFileA(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -196,21 +150,21 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	UINT32 PlayLength = UINT32(dwChunkSize * playLengthMultiplier);
 
 	// Setup Buffer attributes
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	buffer.AudioBytes = dwChunkSize;
-	buffer.pAudioData = pDataBuffer;
+	buffer->Flags = XAUDIO2_END_OF_STREAM;
+	buffer->AudioBytes = dwChunkSize;
+	buffer->pAudioData = pDataBuffer;
 
-	buffer.PlayBegin = 0; // Optional
-	buffer.PlayLength = PlayLength; // Optional
-	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength - 1; // Optional
-	buffer.LoopLength = 0; // Optional
-	buffer.LoopCount = 1;
-	buffer.pContext = NULL; // Optional
+	buffer->PlayBegin = 0; // Optional
+	buffer->PlayLength = PlayLength; // Optional
+	buffer->LoopBegin = buffer->PlayBegin + buffer->PlayLength - 1; // Optional
+	buffer->LoopLength = 0; // Optional
+	buffer->LoopCount = 1;
+	buffer->pContext = NULL; // Optional
 
 	return true;
 }
 
-bool XAudioDriver::PlayAudioSound() {
+bool PlayAudioSound(IXAudio2* pXAudio2, WAVEFORMATEXTENSIBLE wfx, XAUDIO2_BUFFER buffer) {
 	HRESULT hr;
 	IXAudio2SourceVoice* pSourceVoice;
 
@@ -285,8 +239,4 @@ bool XAudioDriver::PlayAudioSound() {
 	}
 
 	return true;
-}
-
-void XAudioDriver::CleanUp() {
-	pXAudio2->Release();
 }

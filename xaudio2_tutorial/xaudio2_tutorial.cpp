@@ -4,10 +4,9 @@
 #include "framework.h"
 #include "xaudio2_tutorial.h"
 #include "xaudio_driver.h"
+#include "hresult_debugger.h"
 
 #define MAX_LOADSTRING 100
-
-const float volume = 0.25;
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -19,6 +18,12 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+// Volume
+const float volume = 0.25;
+
+WAVEFORMATEXTENSIBLE wfx = { 0 };
+XAUDIO2_BUFFER buffer = { 0 };
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -49,21 +54,59 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
     /* Audio */
-    XAudioDriver xAudioDriver = XAudioDriver();
+    IXAudio2* pXAudio2 = nullptr;
+    IXAudio2MasteringVoice* pMasterVoice = nullptr;
 
-    // Initialize XAudio
-    if (!xAudioDriver.InitializeXaudio(volume)) {
-        MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
-        return 0;
+    WAVEFORMATEXTENSIBLE wfx = { 0 };
+    XAUDIO2_BUFFER buffer = { 0 };
+
+    /* Initialize XAudio */
+    
+    // Initialize COM Library
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+    if (FAILED(hr)) {
+        MessageBox(0, L"Failed CoInitializeEx in InitializeXaudio", 0, 0);
+
+        verbose_debug_hresult(hr, "CoInitializeEx Error in InitializeXaudio");
+
+        return false;
     }
 
-    if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
+    /* Initialize XAudio to create an instance of the XAudio2 engine */
+    hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
+
+    if (FAILED(hr)) {
+        MessageBox(0, L"Failed XAudio2Create", 0, 0);
+
+        return false;
+    }
+
+    // Create a mastering voice
+    hr = pXAudio2->CreateMasteringVoice(
+        &pMasterVoice,
+        2,
+        XAUDIO2_DEFAULT_SAMPLERATE,
+        0,
+        NULL,
+        NULL
+    );
+
+    if (FAILED(hr)) {
+        MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
+
+        return false;
+    }
+
+    pMasterVoice->SetVolume(volume);
+
+    if (!LoadWaveAudioFile(audioFilePath, &wfx, &buffer)) {
         MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
         return 0;
     }
 
     // Play Audio Sound
-    if (!xAudioDriver.PlayAudioSound()) {
+    if (!PlayAudioSound(pXAudio2, wfx, buffer)) {
         MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
         return 0;
     }
@@ -77,6 +120,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+    pXAudio2->Release();
 
     return (int) msg.wParam;
 }
