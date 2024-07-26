@@ -24,25 +24,9 @@
 /* Third Party Libraries*/
 #include <xaudio2.h>
 
-class XAudioDriver {
-private:
-	/* Global Declarations */
-	IXAudio2* pXAudio2 = nullptr;
-	IXAudio2MasteringVoice* pMasterVoice = nullptr;
+/* Audio Methods */
+bool LoadWaveAudioFile(const char* audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer);
+bool PlayAudioSound(IXAudio2* pXAudio2, WAVEFORMATEXTENSIBLE wfx, XAUDIO2_BUFFER buffer);
 
-	WAVEFORMATEXTENSIBLE wfx = { 0 };
-	XAUDIO2_BUFFER buffer = { 0 };
-
-	/* Methods */
-	static HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition);
-	static HRESULT ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD bufferoffset);
-public:
-	/* Audio Methods */
-	bool InitializeXaudio(float volume);
-	bool LoadWaveAudioFile(LPCSTR audioFilePath);
-	bool PlayAudioSound();
-
-	void CleanUp();
-};
 #endif // XAUDIO_DRIVER_H
 
