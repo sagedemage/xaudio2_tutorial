@@ -53,7 +53,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Load Audio Files
     LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
-    /* Audio */
+    /* Audio variables */
     IXAudio2* pXAudio2 = nullptr;
     IXAudio2MasteringVoice* pMasterVoice = nullptr;
 
