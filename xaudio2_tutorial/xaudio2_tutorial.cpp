@@ -19,8 +19,9 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-// Volume
+// Global audio variables
 const float volume = 0.25;
+const char* audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -47,13 +48,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // Load Audio Files
-    LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
-
     /* Audio variables */
     IXAudio2* pXAudio2 = nullptr;
     IXAudio2MasteringVoice* pMasterVoice = nullptr;
-
     WAVEFORMATEXTENSIBLE wfx = { 0 };
     XAUDIO2_BUFFER buffer = { 0 };
 

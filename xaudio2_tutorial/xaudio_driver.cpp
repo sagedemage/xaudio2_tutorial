@@ -92,7 +92,7 @@ HRESULT ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD buffe
 	return hr;
 }
 
-bool LoadWaveAudioFile(LPCSTR audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer) {
+bool LoadWaveAudioFile(const char* audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer) {
 	HRESULT hr;
 	HANDLE hFile = CreateFileA(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 

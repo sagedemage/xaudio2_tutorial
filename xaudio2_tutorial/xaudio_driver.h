@@ -25,7 +25,7 @@
 #include <xaudio2.h>
 
 /* Audio Methods */
-bool LoadWaveAudioFile(LPCSTR audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer);
+bool LoadWaveAudioFile(const char* audioFilePath, WAVEFORMATEXTENSIBLE* wfx, XAUDIO2_BUFFER* buffer);
 bool PlayAudioSound(IXAudio2* pXAudio2, WAVEFORMATEXTENSIBLE wfx, XAUDIO2_BUFFER buffer);
 
 #endif // XAUDIO_DRIVER_H
