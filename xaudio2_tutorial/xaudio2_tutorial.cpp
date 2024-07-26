@@ -66,9 +66,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
     if (FAILED(hr)) {
-        MessageBox(0, L"Failed CoInitializeEx in InitializeXaudio", 0, 0);
+        MessageBox(0, L"Failed CoInitializeEx", 0, 0);
 
-        verbose_debug_hresult(hr, "CoInitializeEx Error in InitializeXaudio");
+        verbose_debug_hresult(hr, "CoInitializeEx Error");
 
         return false;
     }
@@ -78,6 +78,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     if (FAILED(hr)) {
         MessageBox(0, L"Failed XAudio2Create", 0, 0);
+
+        verbose_debug_hresult(hr, "XAudio2Create Error");
 
         return false;
     }
@@ -94,6 +96,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     if (FAILED(hr)) {
         MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
+
+        verbose_debug_hresult(hr, "CreateMasteringVoice Error");
 
         return false;
     }
